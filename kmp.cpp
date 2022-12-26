@@ -2,13 +2,22 @@
 // algorithm
 #include <bits/stdc++.h>
 
+
 void computeLPSArray(char* pat, int M, int* lps);
+
 
 // Prints occurrences of txt[] in pat[]
 void KMPSearch(char* pat, char* txt)
 {
+
+
+	printf(pat);
 	int M = strlen(pat);
 	int N = strlen(txt);
+
+	printf("Len pat: %d",M);
+	printf("Len text: %d",N);
+
 
 	// create lps[] that will hold the longest prefix suffix
 	// values for pattern
@@ -26,7 +35,7 @@ void KMPSearch(char* pat, char* txt)
 		}
 
 		if (j == M) {
-			printf("Found pattern at index %d ", i - j);
+			printf("Found pattern at index %d\n ", i - j);
 			j = lps[j - 1];
 		}
 
@@ -79,10 +88,11 @@ void computeLPSArray(char* pat, int M, int* lps)
 }
 
 // Driver code
-int main()
+int main(int argc, char *argv[])
 {
-	char txt[] = "ABABDABACDABABCABAB";
-	char pat[] = "ABABCABAB";
-	KMPSearch(pat, txt);
+
+	//usage: ./kmp -t <text> -p <pattern>
+	
+	KMPSearch(argv[4], argv[2]);
 	return 0;
 }
