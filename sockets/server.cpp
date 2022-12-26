@@ -6,9 +6,13 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
+#include <string>
+#include <iostream>
 #define PORT 8080
 
 void computeLPSArray(char* pat, int M, int* lps);
+using namespace std;
 
 
 // Prints occurrences of txt[] in pat[]
@@ -100,8 +104,20 @@ int main(int argc, char const* argv[])
 	int addrlen = sizeof(address);
 	char buffer[1024] = { 0 };
 
-    char pattern[20] = "ELBICHO";
+    //insieme di stringhe (S)
+    vector<string> strings;
+    strings.push_back("DOG");
+    strings.push_back("FISH");
+    strings.push_back("ALLORA");
+    strings.push_back("TELEPHONE");
+    strings.push_back("PINEAPPLE");
 
+
+    for (vector<string>::iterator t=strings.begin(); t!=strings.end(); ++t) 
+    {
+        cout<<*t<<endl;
+    }
+   
 
 	char hello[1024];
 
@@ -135,22 +151,25 @@ int main(int argc, char const* argv[])
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
-	if ((new_socket
-		= accept(server_fd, (struct sockaddr*)&address,
-				(socklen_t*)&addrlen))
-		< 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
-	valread = read(new_socket, buffer, 1024);
-	printf("%s\n", buffer);
 
-    //qui deve fare il kmp
-    KMPSearch(pattern,buffer,hello);
+    while(1){
+        if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+	    }
+        
+        valread = read(new_socket, buffer, 1024);
+        printf("%s\n", buffer);
+
+        //per ogni paccheto ricevuto fare il KMPSearch
+        //KMPSearch(strings[0],buffer,hello);
 
 
-	send(new_socket, hello, strlen(hello), 0);
-	printf("Hello message sent\n");
+        send(new_socket, hello, strlen(hello), 0);
+        printf("Hello message sent\n");
+
+    }
+	
 
 	// closing the connected socket
 	close(new_socket);
