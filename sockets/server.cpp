@@ -172,15 +172,17 @@ int main(int argc, char const* argv[])
 
 
         send(new_socket, r, strlen(r), 0);
-        printf("Hello message sent\n");
+        printf("Index message sent\n");
 
 		delete[] result;
+
+		// closing the connected socket
+		close(new_socket);
 
     }
 	
 
-	// closing the connected socket
-	close(new_socket);
+	
 	// closing the listening socket
 	shutdown(server_fd, SHUT_RDWR);
 	return 0;

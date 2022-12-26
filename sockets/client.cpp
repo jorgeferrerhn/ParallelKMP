@@ -5,7 +5,15 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
+#include <string>
+#include <iostream>
+
+
 #define PORT 8080
+
+using namespace std;
+
 
 int main(int argc, char const* argv[])
 {
@@ -13,11 +21,16 @@ int main(int argc, char const* argv[])
 	struct sockaddr_in serv_addr;
 
 	//traffico di pachetti (T)
-	const char* traffico[3][100] = {"DOGDINOSAURPHONERORYUCER","FISHTELEPHONECATNUMBERALLORA","MOBILEBICHOLAMPPENPINEAPPLE"};
+    vector<string> traffico;
+
+    traffico.push_back("DOGDINOSAURPHONERORYUCER");
+    traffico.push_back("FISHTELEPHONECATNUMBERALLORA");
+    traffico.push_back("MOBILEBICHOLAMPPENPINEAPPLE");
+   
+	
 	
 	char hello[1024];
 
-	sprintf(hello,"DOGDINOSAURPHONERORYUCER");
 
 	char buffer[1024] = { 0 };
 
@@ -45,10 +58,21 @@ int main(int argc, char const* argv[])
 		printf("\nConnection Failed \n");
 		return -1;
 	}
-	send(sock, hello, strlen(hello), 0);
-	printf("Hello message sent\n");
-	valread = read(sock, buffer, 1024);
-	printf("%s\n", buffer);
+
+        
+	char** result = new char*[traffico.size()];
+
+	for (int index = 0; index < traffico.size(); index++) {
+		result[index] = const_cast<char*>(traffico[index].c_str());
+		printf("%s\n",result[index]);
+		send(sock, result[index], strlen(result[index]), 0);
+		printf("Text sent\n");
+		valread = read(sock, buffer, 1024);
+		printf("%s\n", buffer);
+		}
+
+
+	
 
 	// closing the connected socket
 	close(client_fd);
