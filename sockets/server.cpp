@@ -12,14 +12,13 @@ void computeLPSArray(char* pat, int M, int* lps);
 
 
 // Prints occurrences of txt[] in pat[]
-void KMPSearch(char* pat, char* txt)
+void KMPSearch(char* pat, char* txt, char* result)
 {
 
 
 	int M = strlen(pat);
 	int N = strlen(txt);
 
-    printf("Pattern and text: %s,%s",pat,txt);
 
 
 	// create lps[] that will hold the longest prefix suffix
@@ -38,7 +37,7 @@ void KMPSearch(char* pat, char* txt)
 		}
 
 		if (j == M) {
-			printf("Found pattern at index %d\n ", i - j);
+			sprintf(result,"Found pattern at index %d\n ", i - j);
 			j = lps[j - 1];
 		}
 
@@ -101,11 +100,10 @@ int main(int argc, char const* argv[])
 	int addrlen = sizeof(address);
 	char buffer[1024] = { 0 };
 
-    char pattern[20] = "CRISTIANORONALDO";
+    char pattern[20] = "ELBICHO";
 
 
 	char hello[1024];
-	sprintf(hello,"Hello from server");
 
 
 
@@ -148,7 +146,7 @@ int main(int argc, char const* argv[])
 	printf("%s\n", buffer);
 
     //qui deve fare il kmp
-    KMPSearch(pattern,buffer);
+    KMPSearch(pattern,buffer,hello);
 
 
 	send(new_socket, hello, strlen(hello), 0);
