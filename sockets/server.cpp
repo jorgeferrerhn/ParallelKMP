@@ -113,10 +113,7 @@ int main(int argc, char const* argv[])
     strings.push_back("PINEAPPLE");
 
 
-    for (vector<string>::iterator t=strings.begin(); t!=strings.end(); ++t) 
-    {
-        cout<<*t<<endl;
-    }
+
    
 
 	char hello[1024];
@@ -162,7 +159,13 @@ int main(int argc, char const* argv[])
         printf("%s\n", buffer);
 
         //per ogni paccheto ricevuto fare il KMPSearch
-        //KMPSearch(strings[0],buffer,hello);
+        for (vector<string>::iterator t=strings.begin(); t!=strings.end(); ++t) 
+    	{
+			
+			char* chr = strdup(t.c_str());
+        	KMPSearch(chr,buffer,hello);
+			free(chr); 
+    	}
 
 
         send(new_socket, hello, strlen(hello), 0);
