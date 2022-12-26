@@ -150,6 +150,8 @@ int main(int argc, char const* argv[])
 	}
 
     while(1){
+
+
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
             perror("accept");
             exit(EXIT_FAILURE);
@@ -158,18 +160,21 @@ int main(int argc, char const* argv[])
         valread = read(new_socket, buffer, 1024);
         printf("%s\n", buffer);
 
-        //per ogni paccheto ricevuto fare il KMPSearch
-        for (vector<string>::iterator t=strings.begin(); t!=strings.end(); ++t) 
-    	{
-			
-			char* chr = strdup(t.c_str());
-        	KMPSearch(chr,buffer,hello);
-			free(chr); 
-    	}
+
+		char r[100];
+        char** result = new char*[strings.size()];
+		for (int index = 0; index < strings.size(); index++) {
+			result[index] = const_cast<char*>(strings[index].c_str());
+			printf("%s\n",result[index]);
+			KMPSearch(result[index],buffer,r);
+		}
+		// Use the result.
 
 
-        send(new_socket, hello, strlen(hello), 0);
+        send(new_socket, r, strlen(r), 0);
         printf("Hello message sent\n");
+
+		delete[] result;
 
     }
 	

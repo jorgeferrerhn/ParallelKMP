@@ -17,6 +17,8 @@ int main(int argc, char const* argv[])
 	
 	char hello[1024];
 
+	sprintf(hello,"DOGDINOSAURPHONERORYUCER");
+
 	char buffer[1024] = { 0 };
 
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
