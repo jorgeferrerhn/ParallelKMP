@@ -1,7 +1,7 @@
 // C++ program for implementation of KMP pattern searching
 // algorithm
 #include <bits/stdc++.h>
-
+#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 
 void computeLPSArray(char* pat, int M, int* lps);
 
@@ -11,12 +11,8 @@ void KMPSearch(char* pat, char* txt)
 {
 
 
-	printf(pat);
 	int M = strlen(pat);
 	int N = strlen(txt);
-
-	printf("Len pat: %d",M);
-	printf("Len text: %d",N);
 
 
 	// create lps[] that will hold the longest prefix suffix
@@ -92,7 +88,15 @@ int main(int argc, char *argv[])
 {
 
 	//usage: ./kmp -t <text> -p <pattern>
+
+	const clock_t begin_time = clock();
 	
 	KMPSearch(argv[4], argv[2]);
+
+	std::cout << "Time: " << float( clock () - begin_time ) /  CLOCKS_PER_SEC << " seconds";
+	
+
+	printf("\n");
+
 	return 0;
 }
