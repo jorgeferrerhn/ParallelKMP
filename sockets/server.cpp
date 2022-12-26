@@ -19,6 +19,8 @@ void KMPSearch(char* pat, char* txt)
 	int M = strlen(pat);
 	int N = strlen(txt);
 
+    printf("Pattern and text: %s,%s",pat,txt);
+
 
 	// create lps[] that will hold the longest prefix suffix
 	// values for pattern
@@ -99,7 +101,7 @@ int main(int argc, char const* argv[])
 	int addrlen = sizeof(address);
 	char buffer[1024] = { 0 };
 
-    char pattern[10] = "RORYUCER";
+    char pattern[20] = "CRISTIANORONALDO";
 
 
 	char hello[1024];
