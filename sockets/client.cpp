@@ -12,7 +12,7 @@ int main(int argc, char const* argv[])
 	int sock = 0, valread, client_fd;
 	struct sockaddr_in serv_addr;
 	char hello[1024];
-	sprintf(hello,"Hello from client");
+	sprintf(hello,"DOGDINOSAURPHONERORYUCERSALVATOREPONTARELLI");
 	char buffer[1024] = { 0 };
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		printf("\n Socket creation error \n");
