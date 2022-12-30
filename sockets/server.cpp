@@ -16,8 +16,12 @@ using namespace std;
 
 
 // Prints occurrences of txt[] in pat[]
-void KMPSearch(char* pat, char* txt, char* result)
+char* KMPSearch(char* pat, char* txt)
 {
+
+	char *s; 
+	
+	
 
 
 	int M = strlen(pat);
@@ -41,8 +45,14 @@ void KMPSearch(char* pat, char* txt, char* result)
 		}
 
 		if (j == M) {
-			sprintf(result,"Found pattern at index %d\n ", i - j);
+			char *p;
+			sprintf(p, "%d\n",i-j);
+			printf(p);
+			strcat(s,p);
+
+
 			j = lps[j - 1];
+			
 		}
 
 		// mismatch after j matches
@@ -55,11 +65,17 @@ void KMPSearch(char* pat, char* txt, char* result)
 				i = i + 1;
 		}
 	}
+
+
+
+	return s ;
 }
 
 // Fills lps[] for given pattern pat[0..M-1]
 void computeLPSArray(char* pat, int M, int* lps)
 {
+
+	
 	// length of the previous longest prefix suffix
 	int len = 0;
 
@@ -161,26 +177,36 @@ int main(int argc, char const* argv[])
         printf("%s\n", buffer);
 
 
-		char r[100];
+		char r[1024];
+		
         char** result = new char*[strings.size()];
 		for (int index = 0; index < strings.size(); index++) {
+			char *newString;
+			
 			result[index] = const_cast<char*>(strings[index].c_str());
 			printf("%s\n",result[index]);
-			KMPSearch(result[index],buffer,r);
+			newString = KMPSearch(result[index],buffer);
+			strcat(r,newString);
+			
+			
 		}
+
+		printf("R: ",r);
+		printf("SEND: ");
+		send(new_socket, r, strlen(r), 0);
 		// Use the result.
 
 
-        send(new_socket, r, strlen(r), 0);
+        
         printf("Index message sent\n");
 
-		delete[] result;
+		
 
 		// closing the connected socket
-		close(new_socket);
+		
 
     }
-	
+	close(new_socket);
 
 	
 	// closing the listening socket

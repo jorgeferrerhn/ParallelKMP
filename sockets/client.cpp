@@ -23,9 +23,10 @@ int main(int argc, char const* argv[])
 	//traffico di pachetti (T)
     vector<string> traffico;
 
-    traffico.push_back("DOGDINOSAURPHONERORYUCER");
+    traffico.push_back("DINOSAURPHONEDOGRORYUCER");
+	traffico.push_back("MOBILEBICHOLAMPPENPINEAPPLE");
     traffico.push_back("FISHTELEPHONECATNUMBERALLORA");
-    traffico.push_back("MOBILEBICHOLAMPPENPINEAPPLE");
+ 
    
 	
 	
@@ -67,6 +68,8 @@ int main(int argc, char const* argv[])
 		printf("%s\n",result[index]);
 		send(sock, result[index], strlen(result[index]), 0);
 		printf("Text sent\n");
+
+		//aspetta il result
 		valread = read(sock, buffer, 1024);
 		printf("%s\n", buffer);
 		}
