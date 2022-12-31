@@ -48,7 +48,12 @@ void KMPSearch(char* pat, char* txt,char* result)
 			char p[100];
 			int k = i-j;
 			sprintf(p,"%s Found pattern at index %d\n", pat,k);			
-			strcat(result,p);
+			if (strcmp(result,"\n") == 0){
+				sprintf(result,p);
+			}
+			else{
+				strcat(result,p);
+			}
 			j = lps[j - 1];
 			
 		}
@@ -216,6 +221,9 @@ int main(int argc, char const* argv[])
 		if ((sendMessage(new_socket, buffer, strlen(buffer)+1) == -1)){printf("Error en envío\n");break;}  
 		// Use the result.
         printf("Index message sent\n");
+
+		//flush r
+		sprintf(r,"\n");
 
 		
 	
