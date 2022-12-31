@@ -24,7 +24,7 @@ int main(int argc, char const* argv[])
 	auto start = std::chrono::high_resolution_clock::now();
 
 
-	int sock = 0, valread, client_fd;
+	int sock = 0, client_fd;
 	struct sockaddr_in serv_addr;
 
 	//traffico di pachetti (T)
@@ -32,6 +32,7 @@ int main(int argc, char const* argv[])
 
     traffico.push_back("BBBBBAABCC");
 	traffico.push_back("ABBAACA");
+	traffico.push_back("AAACCCADDA");
     traffico.push_back("BBBAAACBAD");
     traffico.push_back("0");
     traffico.push_back("CCCAABBCCA");
@@ -44,7 +45,7 @@ int main(int argc, char const* argv[])
         
 	char** result = new char*[traffico.size()];
 
-	for (int index = 0; index < traffico.size(); index++) {
+	for (int index = 0; unsigned(index) < traffico.size(); index++) {
 
 		char buffer[1024];
 
@@ -93,7 +94,7 @@ int main(int argc, char const* argv[])
 		printf("RESULT: %s\n", buffer);
 
 		//we flush the buffer and the result
-		sprintf(buffer,"\0");
+		sprintf(buffer,"\n");
 
 
 		close(client_fd);
