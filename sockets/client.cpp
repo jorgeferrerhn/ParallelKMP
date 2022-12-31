@@ -23,11 +23,11 @@ int main(int argc, char const* argv[])
 	//traffico di pachetti (T)
     vector<string> traffico;
 
-    traffico.push_back("BBBBBAABCCAAABAAAAAADDAD");
-	traffico.push_back("ASDAKSAAABCCCA");
-    traffico.push_back("AAAADDADBAAASDBASJS");
+    traffico.push_back("BBBBBAABCC");
+	traffico.push_back("ASDAKSAA");
+    traffico.push_back("AAAADDADB");
     traffico.push_back("0");
-    traffico.push_back("11111111111111");
+    traffico.push_back("111111");
 	
 
  
@@ -76,10 +76,10 @@ int main(int argc, char const* argv[])
 		}
 		printf("Text sent\n");
 
-		char recvBuffer[1024];
+		char recvBuffer[2048];
 
 		//aspetta il result
-		valread = read(sock, recvBuffer, 1024);
+		valread = read(sock, recvBuffer, 2048);
 		printf("RESULT: %s\n", recvBuffer);
 
 		//we flush the buffer and the result
