@@ -10,7 +10,8 @@
 #include <string>
 #include <iostream>
 #include <chrono>
-#include "lines.h"
+
+#include "queue_lk.h"
 
 #define PORT 8080
 
@@ -175,7 +176,7 @@ int main(int argc, char const* argv[])
     while(1){
 
 
-		char buffer[1024]; 
+		char buffer[1024];
 
 
 

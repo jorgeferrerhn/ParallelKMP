@@ -175,7 +175,7 @@ int main(int argc, char const* argv[])
     while(1){
 
 
-		char buffer[1024];
+		char buffer[1024]; 
 
 
 
