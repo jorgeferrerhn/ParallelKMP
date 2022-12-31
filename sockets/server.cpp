@@ -44,7 +44,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 
 		if (j == M) {
 			char *p;
-			sprintf(result,"Found pattern at index %d\n ", i - j);			
+			sprintf(p,"%s Found pattern at index %d\n ", pat,i - j);			
 			strcat(result,p);
 
 
@@ -166,32 +166,40 @@ int main(int argc, char const* argv[])
 
 
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
-            perror("accept");
+            printf("accept");
             exit(EXIT_FAILURE);
 	    }
         
+
         valread = read(new_socket, buffer, 1024);
+		if (valread == -1){
+			printf("Error reading\n");
+		}
         printf("%s\n", buffer);
 
 
 		char r[1024];
+
 		
         char** result = new char*[strings.size()];
 		for (int index = 0; index < strings.size(); index++) {
 			char *newString;
 			
 			result[index] = const_cast<char*>(strings[index].c_str());
-			printf("WORD: %s\n",result[index]);
 			KMPSearch(result[index],buffer,r);
-			printf("R: %s\n",r);
+
+			
 
 			
 			
 		}
 
-		printf("R: ",r);
+		printf("FINAL: %s",r);
 		printf("SEND: ");
-		send(new_socket, r, strlen(r), 0);
+		int a = send(new_socket, r, strlen(r), 0);
+		if (a == -1){
+			printf("error sending back\n");
+		}
 		// Use the result.
 
 
