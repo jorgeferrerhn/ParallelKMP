@@ -44,7 +44,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 
 		if (j == M) {
 			char *p;
-			sprintf(p,"%s Found pattern at index %d\n ", pat,i - j);			
+			sprintf(p,"%s Found pattern at index %d\n", pat,i - j);			
 			strcat(result,p);
 
 
@@ -62,6 +62,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 				i = i + 1;
 		}
 	}
+
 
 
 
@@ -175,7 +176,10 @@ int main(int argc, char const* argv[])
 		if (valread == -1){
 			printf("Error reading\n");
 		}
-        printf("%s\n", buffer);
+        printf("TEXT TO ANALIZE:%s\n", buffer);
+
+		char textToAnalize[1024];
+		sprintf(textToAnalize,buffer); //we pass the word to a new variable
 
 
 		char r[1024];
@@ -183,28 +187,23 @@ int main(int argc, char const* argv[])
 		
         char** result = new char*[strings.size()];
 		for (int index = 0; index < strings.size(); index++) {
-			char *newString;
-			
 			result[index] = const_cast<char*>(strings[index].c_str());
-			KMPSearch(result[index],buffer,r);
+			KMPSearch(result[index],textToAnalize,r);
 
-			
-
-			
 			
 		}
 
-		printf("FINAL: %s",r);
+		printf("FOUND PATTERNS:\n%s\n",r);
 		printf("SEND: ");
 		int a = send(new_socket, r, strlen(r), 0);
 		if (a == -1){
 			printf("error sending back\n");
 		}
 		// Use the result.
-
-
-        
         printf("Index message sent\n");
+
+		sprintf(r,""); //we flush the result
+
 
 		
 

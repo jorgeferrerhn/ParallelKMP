@@ -80,7 +80,7 @@ int main(int argc, char const* argv[])
 
 		//aspetta il result
 		valread = read(sock, buffer, 1024);
-		printf("%s\n", buffer);
+		printf("RECEIVED: %s\n", buffer);
 
 		close(client_fd);
 
