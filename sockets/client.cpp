@@ -23,25 +23,23 @@ int main(int argc, char const* argv[])
 	//traffico di pachetti (T)
     vector<string> traffico;
 
-    traffico.push_back("DINOSAURPHONEDOGRORYUCER");
-	traffico.push_back("MOBILEBICHOLAMPPENPINEAPPLE");
-    traffico.push_back("FISHTELEPHONECATNUMBERALLORA");
+    traffico.push_back("BBBBBAABCCAAABAAAAAADDAD");
+	traffico.push_back("ASDAKSAAABCCCA");
+    traffico.push_back("AAAADDADBAAASDBASJS");
+    traffico.push_back("0");
+    traffico.push_back("11111111111111");
+	
+
  
    
-	
-	
-	char hello[1024];
-
-
-	char buffer[1024] = { 0 };
-
-	
-
 	
         
 	char** result = new char*[traffico.size()];
 
 	for (int index = 0; index < traffico.size(); index++) {
+
+		char buffer[1024];
+
 
 
 		if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -69,7 +67,7 @@ int main(int argc, char const* argv[])
 	}
 
 		result[index] = const_cast<char*>(traffico[index].c_str());
-		printf("%s\n",result[index]);
+		printf("TEXT SENT TO ANALIZE: %s\n",result[index]);
 		
 		int a = send(sock, result[index], strlen(result[index]), 0);
 		if (a == -1){
@@ -78,9 +76,16 @@ int main(int argc, char const* argv[])
 		}
 		printf("Text sent\n");
 
+		char recvBuffer[1024];
+
 		//aspetta il result
-		valread = read(sock, buffer, 1024);
-		printf("RECEIVED: %s\n", buffer);
+		valread = read(sock, recvBuffer, 1024);
+		printf("RESULT: %s\n", recvBuffer);
+
+		//we flush the buffer and the result
+		sprintf(buffer,"");
+		sprintf(recvBuffer,"");
+
 
 		close(client_fd);
 

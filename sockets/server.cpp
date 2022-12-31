@@ -116,21 +116,19 @@ int main(int argc, char const* argv[])
 	struct sockaddr_in address;
 	int opt = 1;
 	int addrlen = sizeof(address);
-	char buffer[1024] = { 0 };
 
     //insieme di stringhe (S)
     vector<string> strings;
-    strings.push_back("DOG");
-    strings.push_back("FISH");
-    strings.push_back("RORY");
-    strings.push_back("TELEPHONE");
-    strings.push_back("PINEAPPLE");
+    strings.push_back("AAAB");
+    strings.push_back("AABAA");
+    strings.push_back("CCCA");
+    strings.push_back("AAAADDAD");
+    strings.push_back("BBBBB");
 
 
 
    
 
-	char hello[1024];
 
 
 
@@ -166,6 +164,10 @@ int main(int argc, char const* argv[])
     while(1){
 
 
+		char buffer[1024];
+
+
+
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
             printf("accept");
             exit(EXIT_FAILURE);
@@ -189,12 +191,16 @@ int main(int argc, char const* argv[])
 		for (int index = 0; index < strings.size(); index++) {
 			result[index] = const_cast<char*>(strings[index].c_str());
 			KMPSearch(result[index],textToAnalize,r);
-
 			
 		}
 
 		printf("FOUND PATTERNS:\n%s\n",r);
 		printf("SEND: ");
+
+		if (strcmp(r,"") == 0){
+			printf("No matches\n");
+			sprintf(r, "NO MATCHES\n");
+		}
 		int a = send(new_socket, r, strlen(r), 0);
 		if (a == -1){
 			printf("error sending back\n");
@@ -203,11 +209,13 @@ int main(int argc, char const* argv[])
         printf("Index message sent\n");
 
 		sprintf(r,""); //we flush the result
+		sprintf(textToAnalize,""); //flush textToAnalize
+		sprintf(buffer,""); //flush buffer
+
 
 
 		
 
-		// closing the connected socket
 		
 
     }
