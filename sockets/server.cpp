@@ -44,8 +44,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 
 		if (j == M) {
 			char *p;
-			sprintf(p, "%d\n",i-j);
-			
+			sprintf(result,"Found pattern at index %d\n ", i - j);			
 			strcat(result,p);
 
 
@@ -122,7 +121,7 @@ int main(int argc, char const* argv[])
     vector<string> strings;
     strings.push_back("DOG");
     strings.push_back("FISH");
-    strings.push_back("ALLORA");
+    strings.push_back("RORY");
     strings.push_back("TELEPHONE");
     strings.push_back("PINEAPPLE");
 
@@ -175,16 +174,16 @@ int main(int argc, char const* argv[])
         printf("%s\n", buffer);
 
 
-		char *r;
+		char r[1024];
 		
         char** result = new char*[strings.size()];
 		for (int index = 0; index < strings.size(); index++) {
 			char *newString;
 			
 			result[index] = const_cast<char*>(strings[index].c_str());
-			printf("%s\n",result[index]);
+			printf("WORD: %s\n",result[index]);
 			KMPSearch(result[index],buffer,r);
-			printf("R: \n",r);
+			printf("R: %s\n",r);
 
 			
 			
