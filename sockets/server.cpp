@@ -16,11 +16,9 @@ using namespace std;
 
 
 // Prints occurrences of txt[] in pat[]
-char* KMPSearch(char* pat, char* txt)
+void KMPSearch(char* pat, char* txt,char* result)
 {
 
-	char *s; 
-	
 	
 
 
@@ -47,8 +45,8 @@ char* KMPSearch(char* pat, char* txt)
 		if (j == M) {
 			char *p;
 			sprintf(p, "%d\n",i-j);
-			printf(p);
-			strcat(s,p);
+			
+			strcat(result,p);
 
 
 			j = lps[j - 1];
@@ -68,7 +66,7 @@ char* KMPSearch(char* pat, char* txt)
 
 
 
-	return s ;
+
 }
 
 // Fills lps[] for given pattern pat[0..M-1]
@@ -177,7 +175,7 @@ int main(int argc, char const* argv[])
         printf("%s\n", buffer);
 
 
-		char r[1024];
+		char *r;
 		
         char** result = new char*[strings.size()];
 		for (int index = 0; index < strings.size(); index++) {
@@ -185,8 +183,9 @@ int main(int argc, char const* argv[])
 			
 			result[index] = const_cast<char*>(strings[index].c_str());
 			printf("%s\n",result[index]);
-			newString = KMPSearch(result[index],buffer);
-			strcat(r,newString);
+			KMPSearch(result[index],buffer,r);
+			printf("R: \n",r);
+
 			
 			
 		}
