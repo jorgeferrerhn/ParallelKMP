@@ -9,6 +9,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <chrono>
+#include "lines.h"
+
 #define PORT 8080
 
 void computeLPSArray(char* pat, int M, int* lps);
@@ -112,6 +115,11 @@ void computeLPSArray(char* pat, int M, int* lps)
 
 int main(int argc, char const* argv[])
 {
+
+	//measure server time execution
+	
+	auto start = std::chrono::high_resolution_clock::now();
+	
 	int server_fd, new_socket, valread;
 	struct sockaddr_in address;
 	int opt = 1;
@@ -174,14 +182,19 @@ int main(int argc, char const* argv[])
 	    }
         
 
-        valread = read(new_socket, buffer, 1024);
-		if (valread == -1){
-			printf("Error reading\n");
-		}
+        //obtenemos usuario
+		if ((readLine(new_socket, buffer, 256)==-1)){printf("Error en el servidor");break;}
         printf("TEXT TO ANALIZE:%s\n", buffer);
+
 
 		char textToAnalize[1024];
 		sprintf(textToAnalize,buffer); //we pass the word to a new variable
+
+
+		if (strcmp(textToAnalize,"FINISH") == 0){
+			printf("FINISH\n");
+			break;
+		}
 
 
 		char r[1024];
@@ -199,10 +212,9 @@ int main(int argc, char const* argv[])
 		if (strcmp(r,"") == 0){
 			sprintf(r, "No matches, pattern not found");
 		}
-		int a = send(new_socket, r, strlen(r), 0);
-		if (a == -1){
-			printf("error sending back\n");
-		}
+
+		sprintf(buffer,r);
+		if ((sendMessage(new_socket, buffer, strlen(buffer)+1) == -1)){printf("Error en envío\n");break;}  
 		// Use the result.
         printf("Index message sent\n");
 
@@ -219,8 +231,15 @@ int main(int argc, char const* argv[])
     }
 	close(new_socket);
 
-	
 	// closing the listening socket
 	shutdown(server_fd, SHUT_RDWR);
+
+	//end of time measurement
+	auto stop = std::chrono::high_resolution_clock::now();
+	
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+	cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+
 	return 0;
 }

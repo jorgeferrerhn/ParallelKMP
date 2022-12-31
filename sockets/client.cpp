@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "lines.h"
 
 
 #define PORT 8080
@@ -28,6 +29,7 @@ int main(int argc, char const* argv[])
     traffico.push_back("BBBAAACBAD");
     traffico.push_back("0");
     traffico.push_back("CCCAABBCCA");
+	traffico.push_back("FINISH");
 	
 
  
@@ -69,22 +71,23 @@ int main(int argc, char const* argv[])
 		result[index] = const_cast<char*>(traffico[index].c_str());
 		printf("TEXT SENT TO ANALIZE: %s\n",result[index]);
 		
-		int a = send(sock, result[index], strlen(result[index]), 0);
-		if (a == -1){
-			printf("Error");
-			
-		}
+		
+		if ((sendMessage(sock, result[index], strlen(result[index])+1) == -1)){printf("Error en envío\n");break;}  
+		
 		printf("Text sent\n");
 
-		char recvBuffer[2048];
 
 		//aspetta il result
-		valread = read(sock, recvBuffer, 2048);
-		printf("RESULT: %s\n", recvBuffer);
+
+		if ((readLine(sock, buffer, 256)==-1)){printf("Error en el servidor");break;}
+        printf("TEXT TO ANALIZE:%s\n", buffer);
+
+
+		
+		printf("RESULT: %s\n", buffer);
 
 		//we flush the buffer and the result
 		sprintf(buffer,"\0");
-		sprintf(recvBuffer,"\0");
 
 
 		close(client_fd);
