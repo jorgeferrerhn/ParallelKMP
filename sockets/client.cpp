@@ -24,10 +24,10 @@ int main(int argc, char const* argv[])
     vector<string> traffico;
 
     traffico.push_back("BBBBBAABCC");
-	traffico.push_back("ASDAKSAA");
-    traffico.push_back("AAAADDADB");
+	traffico.push_back("ABBAACA");
+    traffico.push_back("BBBAAACBAD");
     traffico.push_back("0");
-    traffico.push_back("111111");
+    traffico.push_back("CCCAABBCCA");
 	
 
  
@@ -83,8 +83,8 @@ int main(int argc, char const* argv[])
 		printf("RESULT: %s\n", recvBuffer);
 
 		//we flush the buffer and the result
-		sprintf(buffer,"");
-		sprintf(recvBuffer,"");
+		sprintf(buffer,"\0");
+		sprintf(recvBuffer,"\0");
 
 
 		close(client_fd);

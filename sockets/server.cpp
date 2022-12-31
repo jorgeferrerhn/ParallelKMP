@@ -195,11 +195,9 @@ int main(int argc, char const* argv[])
 		}
 
 		printf("FOUND PATTERNS:\n%s\n",r);
-		printf("SEND: ");
 
 		if (strcmp(r,"") == 0){
-			printf("No matches\n");
-			sprintf(r, "NO MATCHES\n");
+			sprintf(r, "No matches, pattern not found");
 		}
 		int a = send(new_socket, r, strlen(r), 0);
 		if (a == -1){
@@ -208,9 +206,9 @@ int main(int argc, char const* argv[])
 		// Use the result.
         printf("Index message sent\n");
 
-		sprintf(r,""); //we flush the result
-		sprintf(textToAnalize,""); //flush textToAnalize
-		sprintf(buffer,""); //flush buffer
+		sprintf(r,"\0"); //we flush the result
+		sprintf(textToAnalize,"\0"); //flush textToAnalize
+		sprintf(buffer,"\0"); //flush buffer
 
 
 
