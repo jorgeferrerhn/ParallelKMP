@@ -24,7 +24,6 @@ void KMPSearch(char* pat, char* txt,char* result)
 
 	
 
-
 	int M = strlen(pat);
 	int N = strlen(txt);
 
@@ -37,7 +36,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 	// Preprocess the pattern (calculate lps[] array)
 	computeLPSArray(pat, M, lps);
 
-	int i = 0; // index for txt[]
+	int i = 0; // index for txt[] 
 	int j = 0; // index for pat[]
 	while ((N - i) >= (M - j)) {
 		if (pat[j] == txt[i]) {
@@ -46,11 +45,10 @@ void KMPSearch(char* pat, char* txt,char* result)
 		}
 
 		if (j == M) {
-			char *p;
-			sprintf(p,"%s Found pattern at index %d\n", pat,i - j);			
+			char p[100];
+			int k = i-j;
+			sprintf(p,"%s Found pattern at index %d\n", pat,k);			
 			strcat(result,p);
-
-
 			j = lps[j - 1];
 			
 		}
@@ -120,7 +118,7 @@ int main(int argc, char const* argv[])
 	
 	auto start = std::chrono::high_resolution_clock::now();
 	
-	int server_fd, new_socket, valread;
+	int server_fd, new_socket;
 	struct sockaddr_in address;
 	int opt = 1;
 	int addrlen = sizeof(address);
@@ -201,7 +199,8 @@ int main(int argc, char const* argv[])
 
 		
         char** result = new char*[strings.size()];
-		for (int index = 0; index < strings.size(); index++) {
+		
+		for (int index = 0; (unsigned)index < strings.size(); index++) {
 			result[index] = const_cast<char*>(strings[index].c_str());
 			KMPSearch(result[index],textToAnalize,r);
 			
@@ -218,10 +217,8 @@ int main(int argc, char const* argv[])
 		// Use the result.
         printf("Index message sent\n");
 
-		sprintf(r,"\0"); //we flush the result
-		sprintf(textToAnalize,"\0"); //flush textToAnalize
-		sprintf(buffer,"\0"); //flush buffer
-
+		
+	
 
 
 		

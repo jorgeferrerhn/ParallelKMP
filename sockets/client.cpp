@@ -4,11 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <unistd.h>
+#include <unistd.h> 
 #include <vector>
 #include <string>
 #include <iostream>
 #include "lines.h"
+#include <chrono>
+
 
 
 #define PORT 8080
@@ -18,6 +20,10 @@ using namespace std;
 
 int main(int argc, char const* argv[])
 {
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+
 	int sock = 0, valread, client_fd;
 	struct sockaddr_in serv_addr;
 
@@ -96,7 +102,12 @@ int main(int argc, char const* argv[])
 
 
 	
+	//end of time measurement
+	auto stop = std::chrono::high_resolution_clock::now();
+	
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
+	cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
 	// closing the connected socket
 	return 0;
 }
