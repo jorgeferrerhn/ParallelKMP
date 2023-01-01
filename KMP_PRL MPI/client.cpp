@@ -10,7 +10,7 @@
 #include <iostream>
 #include "lines.h"
 #include <chrono>
-
+#include <mqueue.h>
 
 
 #define PORT 8080
@@ -21,7 +21,40 @@ using namespace std;
 int main(int argc, char const* argv[])
 {
 
+	mqd_t q_server;       /* queue of messages for server */
+	mqd_t q_client;        /* queue of messages for client */
+
+    struct mq_attr attr;
+
 	auto start = std::chrono::high_resolution_clock::now();
+
+	attr.mq_maxmsg = 1;     
+	attr.mq_msgsize = sizeof(char[1024]);  
+
+	char processid[256];
+
+    sprintf(processid,  "/Queue-%d", getpid());
+
+	
+	q_client = mq_open(processid, O_CREAT|O_RDONLY, 0700, &attr);
+
+
+	if (q_client == -1) {
+		perror("mq_open");
+		return -1;
+	}
+
+	q_server = mq_open("/SERVER", O_WRONLY);
+    
+    if (q_server == -1){
+		mq_close(q_client);
+		perror("mq_open");
+		return -1;
+	}   
+
+	
+
+	
 
 
 	int sock = 0, client_fd;
@@ -79,15 +112,25 @@ int main(int argc, char const* argv[])
 		printf("TEXT SENT TO ANALIZE: %s\n",result[index]);
 		
 		
-		if ((sendMessage(sock, result[index], strlen(result[index])+1) == -1)){printf("Error en envío\n");break;}  
+		//we will send the message to the server queue
+
+		if (mq_send(q_server, result[index], sizeof(result[index]+1), 0) < 0){
+			perror("mq_send");
+			return -1;
+		}	
+		
 		
 		printf("Text sent\n");
 
 
 		//aspetta il result
+		
+		//we will receive from the client queue the response
+		if (mq_receive(q_client, buffer, 256, 0) < 0){
+			perror("mq_recv");
+			return -1;
+		}
 
-		if ((readLine(sock, buffer, 256)==-1)){printf("Error en el servidor");break;}
-        printf("TEXT TO ANALIZE:%s\n", buffer);
 
 
 		
