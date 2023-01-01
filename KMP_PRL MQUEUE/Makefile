@@ -2,11 +2,11 @@ BIN_FILES  = server client
 
 CC = g++ -Wall
 
-
+LDLIBS = -lpthread -lrt
 
 
 LDFLAGS = -L$(INSTALL_PATH)/lib/
-LDLIBS = -lpthread
+
 
 
 all: $(BIN_FILES)
