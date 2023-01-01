@@ -138,7 +138,7 @@ int main(int argc, char const* argv[])
 
     vector<string> strings;
 
-	std::ifstream file("tests/T1024.txt");
+	std::ifstream file("tests/T16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {

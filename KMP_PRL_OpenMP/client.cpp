@@ -33,7 +33,7 @@ int main(int argc, char const* argv[])
 	
     vector<string> traffico;
 
-	std::ifstream file("tests/S1024.txt");
+	std::ifstream file("tests/S16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {

@@ -41,7 +41,7 @@ int main(int argc, char const* argv[])
     file.close();
 	}
 
- 
+ 	traffico.push_back("FINISH");
    
 	
         
