@@ -29,7 +29,7 @@ int main(int argc, char const* argv[])
 	auto start = std::chrono::high_resolution_clock::now();
 
 	attr.mq_maxmsg = 1;     
-	attr.mq_msgsize = sizeof(char[1024]);  
+	attr.mq_msgsize = sizeof(char[256]);  
 
 	char processid[256];
 

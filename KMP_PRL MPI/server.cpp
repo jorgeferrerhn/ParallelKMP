@@ -11,11 +11,19 @@
 #include <iostream>
 #include <chrono>
 #include "lines.h"
+#include <mqueue.h>
+
+pthread_mutex_t mutex_mensaje;
+int mensaje_no_copiado = true;
+pthread_cond_t cond_mensaje;
+mqd_t  q_servidor;
 
 #define PORT 8080
 
 void computeLPSArray(char* pat, int M, int* lps);
 using namespace std;
+
+
 
 
 // Prints occurrences of txt[] in pat[]
@@ -115,9 +123,60 @@ void computeLPSArray(char* pat, int M, int* lps)
 
 
 
+void tratar_peticion(void* buffer){
+	mqd_t q_cliente;                /* cola de mensajes del cliente */
+	
+	pthread_mutex_lock(&mutex_mensaje);
+
+	
+	/* ya se puede despertar al servidor*/
+	mensaje_no_copiado = false;
+
+	
+	pthread_cond_signal(&cond_mensaje);
+
+	pthread_mutex_unlock(&mutex_mensaje);
+	
+	q_cliente = mq_open("/CLIENT", O_WRONLY);
+	
+	if (q_cliente < 0) {
+		perror("mq_open");
+		mq_close(q_servidor);
+		mq_unlink("/SERVIDOR");
+		
+	}
+
+}
 
 int main(int argc, char const* argv[])
 {
+
+	pthread_attr_t t_attr;		// atributos de los threads 
+   	pthread_t thid;
+	   
+	struct mq_attr attr;
+
+	attr.mq_maxmsg = 10; //num_threads?               
+	attr.mq_msgsize = sizeof(char[256]);
+
+
+	q_servidor = mq_open("/SERVIDOR", O_CREAT|O_RDONLY, 0700, &attr);
+
+	if (q_servidor == -1) {
+		perror("mq_open");
+		return -1;
+	}
+
+	pthread_mutex_init(&mutex_mensaje, NULL);
+	pthread_cond_init(&cond_mensaje, NULL);
+	pthread_attr_init(&t_attr);
+
+	// atributos de los threads, threads independientes
+	pthread_attr_setdetachstate(&t_attr, PTHREAD_CREATE_DETACHED);
+
+
+
+
 
 	//measure server time execution
 	
@@ -185,8 +244,24 @@ int main(int argc, char const* argv[])
 	    }
         
 
-        //obtenemos usuario
-		if ((readLine(new_socket, buffer, 256)==-1)){printf("Error en el servidor");break;}
+       
+	    if (mq_receive(q_servidor, buffer, 256, 0) < 0){
+			perror("mq_recev");
+			return -1;
+		}
+
+
+		if (pthread_create(&thid, &t_attr,(void *)tratar_peticion, &buffer)== 0) {
+			// se espera a que el thread copie el mensaje 
+			pthread_mutex_lock(&mutex_mensaje);
+			while (mensaje_no_copiado)
+				pthread_cond_wait(&cond_mensaje, &mutex_mensaje);
+			mensaje_no_copiado = true;
+			pthread_mutex_unlock(&mutex_mensaje);
+		}   
+
+
+		
         printf("TEXT TO ANALIZE:%s\n", buffer);
 
 
