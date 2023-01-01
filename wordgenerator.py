@@ -38,5 +38,5 @@ def write_output(n):
 write_output(4)
 write_output(16)
 write_output(64)
-write_output(1024)
+write_output(800)
 

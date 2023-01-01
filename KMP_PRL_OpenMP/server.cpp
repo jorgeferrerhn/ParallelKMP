@@ -40,6 +40,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 
 	int i = 0; // index for txt[] 
 	int j = 0; // index for pat[]
+	
 	while ((N - i) >= (M - j)) {
 		if (pat[j] == txt[i]) {
 			j++;
@@ -138,7 +139,7 @@ int main(int argc, char const* argv[])
 
     vector<string> strings;
 
-	std::ifstream file("tests/T16.txt");
+	std::ifstream file("tests/T800.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {

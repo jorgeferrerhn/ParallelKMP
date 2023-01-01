@@ -131,7 +131,7 @@ int main(int argc, char const* argv[])
 
   	vector<string> strings;
 
-	std::ifstream file("tests/S1024.txt");
+	std::ifstream file("tests/S800.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
@@ -185,7 +185,7 @@ int main(int argc, char const* argv[])
 
 
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
-            printf("accept");
+            printf("accept: %d",new_socket);
             exit(EXIT_FAILURE);
 	    }
         
