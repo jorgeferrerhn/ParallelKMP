@@ -91,5 +91,6 @@
         "valarray": "cpp",
         "variant": "cpp",
         "queue.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

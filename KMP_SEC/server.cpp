@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <chrono>
+#include <fstream>
 #include "lines.h"
 
 #define PORT 8080
@@ -128,14 +129,18 @@ int main(int argc, char const* argv[])
 	int opt = 1;
 	int addrlen = sizeof(address);
 
-    //insieme di stringhe (S)
-    vector<string> strings;
-    strings.push_back("AAAB");
-    strings.push_back("AABAA");
-    strings.push_back("CCCA");
-    strings.push_back("AAAADDAD");
-    strings.push_back("BBBBB");
+  	vector<string> strings;
 
+	std::ifstream file("tests/S1024.txt");
+	if (file.is_open()) {
+		std::string line;
+		while (std::getline(file, line)) {
+			// using printf() in all tests for consistency
+			strings.push_back(line.c_str());
+			printf("%s\n", line.c_str());
+		}
+    file.close();
+}
 
 
    
@@ -244,7 +249,7 @@ int main(int argc, char const* argv[])
 	
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+	cout << "Time taken by function: " << duration.count()/1000000.0 << " second" << endl;
 
 	return 0;
 }

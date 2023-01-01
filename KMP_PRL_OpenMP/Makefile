@@ -1,6 +1,6 @@
 BIN_FILES  = server client 
 
-CC = g++ -Wall
+CC = g++ -fopenmp -Wall
 
 
 

@@ -8,9 +8,11 @@
 #include <unistd.h>
 #include <vector>
 #include <string>
+#include <omp.h>
 #include <iostream>
 #include <chrono>
 #include "lines.h"
+#include <fstream>
 
 #define PORT 8080
 
@@ -119,6 +121,11 @@ void computeLPSArray(char* pat, int M, int* lps)
 int main(int argc, char const* argv[])
 {
 
+	//set number of thread
+	int NUM_HILOS = 16;
+	omp_set_num_threads(NUM_HILOS);
+
+
 	//measure server time execution
 	
 	auto start = std::chrono::high_resolution_clock::now();
@@ -128,14 +135,21 @@ int main(int argc, char const* argv[])
 	int opt = 1;
 	int addrlen = sizeof(address);
 
-    //insieme di stringhe (S)
-    vector<string> strings;
-    strings.push_back("AAAB");
-    strings.push_back("AABAA");
-    strings.push_back("CCCA");
-    strings.push_back("AAAADDAD");
-    strings.push_back("BBBBB");
 
+    vector<string> strings;
+
+	std::ifstream file("tests/T1024.txt");
+	if (file.is_open()) {
+		std::string line;
+		while (std::getline(file, line)) {
+			// using printf() in all tests for consistency
+			strings.push_back(line.c_str());
+			printf("%s\n", line.c_str());
+		}
+    file.close();
+}
+
+    
 
 
    
@@ -202,10 +216,13 @@ int main(int argc, char const* argv[])
 
 		char r[1024];
 
+		auto size = strings.size();
+		int convertdata = static_cast<int>(size);
+        char** result = new char*[size];
 		
-        char** result = new char*[strings.size()];
+		#pragma omp parallel for 
 		
-		for (int index = 0; (unsigned)index < strings.size(); index++) {
+		for (int index = 0; index < convertdata; index++) {
 			result[index] = const_cast<char*>(strings[index].c_str());
 			KMPSearch(result[index],textToAnalize,r);
 			
@@ -244,7 +261,7 @@ int main(int argc, char const* argv[])
 	
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+	cout << "Time taken by function: " << duration.count()/1000000.0 << " second" << endl;
 
 	return 0;
 }

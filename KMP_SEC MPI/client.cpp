@@ -10,6 +10,8 @@
 #include <iostream>
 #include "lines.h"
 #include <chrono>
+#include <fstream>
+
 
 
 
@@ -27,17 +29,21 @@ int main(int argc, char const* argv[])
 	int sock = 0, client_fd;
 	struct sockaddr_in serv_addr;
 
-	//traffico di pachetti (T)
+	//populate list
+	
     vector<string> traffico;
 
-    traffico.push_back("BBBBBAABCC");
-	traffico.push_back("ABBAACA");
-	traffico.push_back("AAACCCADDA");
-    traffico.push_back("BBBAAACBAD");
-    traffico.push_back("0");
-    traffico.push_back("CCCAABBCCA");
-	traffico.push_back("FINISH");
-	
+	std::ifstream file("tests/S1024.txt");
+	if (file.is_open()) {
+		std::string line;
+		while (std::getline(file, line)) {
+			// using printf() in all tests for consistency
+			traffico.push_back(line.c_str());
+			printf("%s\n", line.c_str());
+		}
+    file.close();
+	}
+
 
  
    
