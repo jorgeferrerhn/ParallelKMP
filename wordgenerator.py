@@ -18,8 +18,8 @@ strings = []
 
 def write_output(n):
     for i in range(n):
-        text = (random_char(random.randint(6,25)))
-        string = (random_char(random.randint(3,6)))
+        text = (random_char(1023))
+        string = (random_char(3))
         texts.append(text)
         strings.append(string)
 
