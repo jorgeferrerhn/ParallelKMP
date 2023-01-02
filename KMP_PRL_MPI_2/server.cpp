@@ -170,10 +170,6 @@ int main(int argc, char* argv[])
 }
 
 
-   
-
-
-
 
 	// Creating socket file descriptor
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -207,6 +203,8 @@ int main(int argc, char* argv[])
 
 
 	char sharedBuffer[1024]; //shared buffer between threads
+
+	int n;
     while(1){
 
 
@@ -247,15 +245,23 @@ int main(int argc, char* argv[])
 		
 		
 		//facciamo sappere agli altri thread il numero delle iterazioni che devono eseguire
+
+		printf("MY ID: %d\n",myid);
 		if (myid == 0){
 			for (int islave = 1; islave < numprocs; islave++){
-				MPI_Send(&size,1,MPI_INT,islave,1,MPI_COMM_WORLD);
+
+				n = stringSize;
+				printf("Sending n\n");
+				MPI_Send(&n,1,MPI_INT,islave,1,MPI_COMM_WORLD);
+				printf("N sent\n");
+
+			
 			}
 		}
-
 		else{
-			MPI_Recv(&size,1,MPI_INT,0,1,MPI_COMM_WORLD,&status);
+			MPI_Recv(&n,1,MPI_INT,0,1,MPI_COMM_WORLD,&status);
 		}
+		printf("ERROR\n");
 
 		
 		char bufferProprio[1024];
