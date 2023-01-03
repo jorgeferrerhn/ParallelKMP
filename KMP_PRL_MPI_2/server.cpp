@@ -157,13 +157,15 @@ int main(int argc, char* argv[])
     //comm group contains all proccesses
     MPI_Group comm_group;
 
+    char window_buffer[1024];
     
-    MPI_Comm_group(MPI_COMM_WORLD,&comm_group);
+    
 
-    printf("Number of proccesses: %d\n",comm_size);
-    int ranks[comm_size-1];
-    for (int i = 1; i <= comm_size; i++){
+    printf("Number of proccesses: %d\n",numprocs);
+    int ranks[numprocs-1];
+    for (int i = 1; i < numprocs; i++){
         ranks[i-1] = i;
+		printf("Process %d\n",i);
     }
 
 
@@ -227,20 +229,14 @@ int main(int argc, char* argv[])
 
 	int n ;
 
+	MPI_Comm_group(MPI_COMM_WORLD,&comm_group);
 
 	//per ogni riga del file dobbiamo fare un mutex
 	
 	
     while(1){
+		MPI_Win_create(&window_buffer, sizeof(window_buffer)*numprocs, sizeof(window_buffer), MPI_INFO_NULL, MPI_COMM_WORLD, &window);
 
-		//we create a RMA 
-		if (myid == 0){
-			MPI_Win_create(buf,1024*numprocs,1024,MPI_INFO_NULL,MPI_COMM_WORLD,&win)
-		}
-
-		else{
-			MPI_Win_create(NULL,0,1,MPI_INFO_NULL,MPI_COMM_WORLD,&win);
-		}
 
 
 		char buffer[1024]; 
@@ -295,7 +291,12 @@ int main(int argc, char* argv[])
 
 		if (myid != 0){ // figlio
 
-			MPI_Win_create(NULL,0,1,MPI_INFO_NULL,MPI_COMM_WORLD,&win);
+
+
+			MPI_Group_incl(comm_group,1,father,&fatherGroup); //ranks+1?
+
+
+        	MPI_Win_start(comm_group,0,window);
 			
 			printf("Number of iterations: %d\n",n);
 			int repart = floor(n/(numprocs-1)); //thread 0 receives and distribute the data
@@ -305,7 +306,6 @@ int main(int argc, char* argv[])
 			printf("Repart: %d\n",repart);
 			//qui c'è un lock
 
-			MPI_Win_lock(MPI_LOCK_SHARED,0,0,win);
 
 			//politic of assigning to the last proccess the rest of iterations
 
@@ -321,41 +321,33 @@ int main(int argc, char* argv[])
 
 			
 			
-			for (int i = (rank-1)*repart;i< delimiter; i++){
+			for (int i = (myid-1)*repart;i< delimiter; i++){
 				result[i] = const_cast<char*>(strings[i].c_str());
 				printf("Pattern: %s\n",result[i]);
-				KMPSearch(result[i],textToAnalize,bufferProprio);
-				printf("Result of search: %s\n",bufferProprio);
+				KMPSearch(result[i],textToAnalize,window_buffer);
+				printf("Result of search: %s\n",window_buffer);
 			}
 
-			MPI_Isend (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,1,0,MPI_COMM_WORLD,&request);
-			
-			sleep(1);
-			//rest of iterations
 
-			for (int i = rest_of_iterations; i < n; i++){
-				result[i] = const_cast<char*>(strings[i].c_str());
-				KMPSearch(result[i],textToAnalize,bufferProprio);
-			}
+        	MPI_Put(&window_buffer, strlen(window_buffer)+1, MPI_CHAR, 0, 0, 1, MPI_CHAR, window);
 
 			
-			
 
-
-
+			printf("[MPI process %d] I put data %s in MPI process %d window via MPI_Put.\n", myid,window_buffer,0);
+        	MPI_Win_complete(window);
 		}
 
 
 		else if (myid == 0){ //father: aggiunge tutto
 
-			
-			for (int islave = 1; islave < numprocs; islave++){
+		
+				MPI_Group_incl(comm_group,numprocs-1,ranks,&group); //ranks+1?
 
-				MPI_Irecv (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,islave,2,MPI_COMM_WORLD,&request);
-				printf("Buffer proprio de %d: %s\n",islave,bufferProprio);
-				strcat(sharedBuffer,bufferProprio); //aggiornare il risultato al sharedBuffer
+				MPI_Win_post(group,0,window); //start exposure epoch
+				MPI_Win_wait(window); //stop exposure epoch
+				
+        		printf("[MPI process %d] Value in my window_buffer after MPI_Put: %s.\n", myid,window_buffer);
 
-			}
 
 
 		}
