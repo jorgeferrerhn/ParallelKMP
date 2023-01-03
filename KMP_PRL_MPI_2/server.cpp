@@ -33,7 +33,6 @@ using namespace std;
 void KMPSearch(char* pat, char* txt,char* result)
 {
 
-	printf("Buffer proprio: %s\n",result);
 
 	int M = strlen(pat);
 	int N = strlen(txt);
@@ -148,6 +147,28 @@ int main(int argc, char* argv[])
 
 	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
+	char buf[1024]; //window buffer
+    MPI_Win window;
+
+	MPI_Group group;
+    MPI_Group fatherGroup;
+
+
+    //comm group contains all proccesses
+    MPI_Group comm_group;
+
+    
+    MPI_Comm_group(MPI_COMM_WORLD,&comm_group);
+
+    printf("Number of proccesses: %d\n",comm_size);
+    int ranks[comm_size-1];
+    for (int i = 1; i <= comm_size; i++){
+        ranks[i-1] = i;
+    }
+
+
+    int father[1] = {0};
+
 
 
 	//measure server time execution
@@ -161,7 +182,7 @@ int main(int argc, char* argv[])
 
   	vector<string> strings;
 
-	std::ifstream file("tests/S16.txt");
+	std::ifstream file("tests/S4.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
@@ -212,6 +233,15 @@ int main(int argc, char* argv[])
 	
     while(1){
 
+		//we create a RMA 
+		if (myid == 0){
+			MPI_Win_create(buf,1024*numprocs,1024,MPI_INFO_NULL,MPI_COMM_WORLD,&win)
+		}
+
+		else{
+			MPI_Win_create(NULL,0,1,MPI_INFO_NULL,MPI_COMM_WORLD,&win);
+		}
+
 
 		char buffer[1024]; 
 		
@@ -223,7 +253,7 @@ int main(int argc, char* argv[])
         
 
         //obtenemos texto
-		if ((readLine(new_socket, buffer, 256)==-1)){printf("Error en el servidor");break;}
+		if ((readLine(new_socket, buffer, 1024)==-1)){printf("Error en el servidor");break;}
         printf("TEXT TO ANALIZE:%s\n", buffer);
 
 
@@ -255,33 +285,7 @@ int main(int argc, char* argv[])
 
 		n = stringSize; //number of iterations for each proccess
 
-		/*
-		if (myid == 0){
-
-			n = stringSize;
-			printf("Sending n: %d\n",n);
-
-			for (int islave = 1; islave < numprocs; islave++){
-
-				MPI_Isend(&n,1,MPI_INT,islave,123,MPI_COMM_WORLD,&request);
-				printf("N sent to proccess %d\n",islave);
-
-			
-			}
-
-
-			
-
-		}
-		else if (myid != 0){
-			printf("I am thread son %d\n",myid);
-			MPI_Irecv(&n,1,MPI_INT,0,123,MPI_COMM_WORLD,&request);
-			printf("Process %d received number %d from process 0\n",myid,n);
-
-			
-		}
 		
-		*/
 
 
 		char sharedBuffer[1024]; //shared buffer between threads
@@ -290,19 +294,52 @@ int main(int argc, char* argv[])
 
 
 		if (myid != 0){ // figlio
-			int repart = floor(n/numprocs-1); //thread 0 receives and distribute the data
-			for (int i = (myid-1)*repart;i<= (myid*repart); i++){
-				
-				result[i] = const_cast<char*>(strings[i].c_str());
-				printf("Pattern to analize: %s\n",result[i]);
-				KMPSearch(result[i],textToAnalize,bufferProprio);
-				printf("Buffer propio: %s\n",bufferProprio);
 
+			MPI_Win_create(NULL,0,1,MPI_INFO_NULL,MPI_COMM_WORLD,&win);
+			
+			printf("Number of iterations: %d\n",n);
+			int repart = floor(n/(numprocs-1)); //thread 0 receives and distribute the data
+			int rest_of_iterations = n - repart;
+			//divide equaly
+
+			printf("Repart: %d\n",repart);
+			//qui c'è un lock
+
+			MPI_Win_lock(MPI_LOCK_SHARED,0,0,win);
+
+			//politic of assigning to the last proccess the rest of iterations
+
+			int delimiter;
+			if (myid == (numprocs -1)){
+				delimiter = (myid*repart) + (n-(repart*(numprocs-1)));
 			}
 
+			else{
+            	delimiter = myid*repart;
+        	}	
 
-			//ci mancherebbe repartire i non-multiplo
+
+			
+			
+			for (int i = (rank-1)*repart;i< delimiter; i++){
+				result[i] = const_cast<char*>(strings[i].c_str());
+				printf("Pattern: %s\n",result[i]);
+				KMPSearch(result[i],textToAnalize,bufferProprio);
+				printf("Result of search: %s\n",bufferProprio);
+			}
+
 			MPI_Isend (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,1,0,MPI_COMM_WORLD,&request);
+			
+			sleep(1);
+			//rest of iterations
+
+			for (int i = rest_of_iterations; i < n; i++){
+				result[i] = const_cast<char*>(strings[i].c_str());
+				KMPSearch(result[i],textToAnalize,bufferProprio);
+			}
+
+			
+			
 
 
 
@@ -310,9 +347,12 @@ int main(int argc, char* argv[])
 
 
 		else if (myid == 0){ //father: aggiunge tutto
+
+			
 			for (int islave = 1; islave < numprocs; islave++){
 
 				MPI_Irecv (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,islave,2,MPI_COMM_WORLD,&request);
+				printf("Buffer proprio de %d: %s\n",islave,bufferProprio);
 				strcat(sharedBuffer,bufferProprio); //aggiornare il risultato al sharedBuffer
 
 			}
@@ -331,7 +371,7 @@ int main(int argc, char* argv[])
 		printf("FOUND PATTERNS:\n%s\n",sharedBuffer);
 
 		if (strcmp(sharedBuffer,"") == 0){
-			sprintf(sharedBuffer, "No matches, pattern not found");
+			sprintf(sharedBuffer, "No matches, pattern not found\n");
 		}
 
 		sprintf(buffer,sharedBuffer);
@@ -340,9 +380,9 @@ int main(int argc, char* argv[])
         printf("Index message sent\n");
 
 		//flush r
-		sprintf(r,"\n");
-		//flush r
-		sprintf(bufferProprio,"\n");
+		memset(r,0,sizeof(r));
+		//flush buffer
+		memset(bufferProprio,0,sizeof(bufferProprio));
 
 		
 	

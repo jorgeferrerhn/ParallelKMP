@@ -33,7 +33,7 @@ int main(int argc, char const* argv[])
 	
     vector<string> traffico;
 
-	std::ifstream file("tests/T16.txt");
+	std::ifstream file("tests/T4.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
@@ -97,7 +97,7 @@ int main(int argc, char const* argv[])
 
 		//aspetta il result
 
-		if ((readLine(sock, buffer, 256)==-1)){printf("Error en el servidor");break;}
+		if ((readLine(sock, buffer, 1024)==-1)){printf("Error en el servidor");break;}
         printf("TEXT TO ANALIZE:%s\n", buffer);
 
 
