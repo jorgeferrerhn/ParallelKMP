@@ -16,6 +16,7 @@
 #include "lines.h"
 #include <pthread.h>
 #include <mpi.h>
+#include <math.h>
 
 
 
@@ -32,7 +33,7 @@ using namespace std;
 void KMPSearch(char* pat, char* txt,char* result)
 {
 
-	
+	printf("Buffer proprio: %s\n",result);
 
 	int M = strlen(pat);
 	int N = strlen(txt);
@@ -133,18 +134,20 @@ void foo()
 int main(int argc, char* argv[]) 
 {
 
+
+
 	int myid,numprocs;
 
-	printf("Prima di tutto");
-
 	MPI_Status status ;
+	MPI_Request request = MPI_REQUEST_NULL;
+	//MPI_Finalize();
+
 	MPI_Init(&argc,&argv);
 
 	MPI_Comm_size(MPI_COMM_WORLD ,&numprocs); 
 
 	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
-	printf("Number of process: %d",numprocs);
 
 
 	//measure server time execution
@@ -158,13 +161,12 @@ int main(int argc, char* argv[])
 
   	vector<string> strings;
 
-	std::ifstream file("tests/S800.txt");
+	std::ifstream file("tests/S16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
 			// using printf() in all tests for consistency
 			strings.push_back(line.c_str());
-			printf("%s\n", line.c_str());
 		}
     file.close();
 }
@@ -202,15 +204,17 @@ int main(int argc, char* argv[])
 
 
 
-	char sharedBuffer[1024]; //shared buffer between threads
+	int n ;
 
-	int n;
+
+	//per ogni riga del file dobbiamo fare un mutex
+	
+	
     while(1){
 
 
 		char buffer[1024]; 
 		
-
 
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
             printf("accept: %d",new_socket);
@@ -218,7 +222,7 @@ int main(int argc, char* argv[])
 	    }
         
 
-        //obtenemos usuario
+        //obtenemos texto
 		if ((readLine(new_socket, buffer, 256)==-1)){printf("Error en el servidor");break;}
         printf("TEXT TO ANALIZE:%s\n", buffer);
 
@@ -247,41 +251,79 @@ int main(int argc, char* argv[])
 		//facciamo sappere agli altri thread il numero delle iterazioni che devono eseguire
 
 		printf("MY ID: %d\n",myid);
+
+
+		n = stringSize; //number of iterations for each proccess
+
+		/*
 		if (myid == 0){
+
+			n = stringSize;
+			printf("Sending n: %d\n",n);
+
 			for (int islave = 1; islave < numprocs; islave++){
 
-				n = stringSize;
-				printf("Sending n\n");
-				MPI_Send(&n,1,MPI_INT,islave,1,MPI_COMM_WORLD);
-				printf("N sent\n");
+				MPI_Isend(&n,1,MPI_INT,islave,123,MPI_COMM_WORLD,&request);
+				printf("N sent to proccess %d\n",islave);
 
 			
 			}
-		}
-		else{
-			MPI_Recv(&n,1,MPI_INT,0,1,MPI_COMM_WORLD,&status);
-		}
-		printf("ERROR\n");
 
+
+			
+
+		}
+		else if (myid != 0){
+			printf("I am thread son %d\n",myid);
+			MPI_Irecv(&n,1,MPI_INT,0,123,MPI_COMM_WORLD,&request);
+			printf("Process %d received number %d from process 0\n",myid,n);
+
+			
+		}
 		
+		*/
+
+
+		char sharedBuffer[1024]; //shared buffer between threads
 		char bufferProprio[1024];
-		//i thread fanno i loro calcoli 
-		for (int i = myid +1; i<= stringSize; i += numprocs){
-			result[i] = const_cast<char*>(strings[i].c_str());
-			KMPSearch(result[i],textToAnalize,bufferProprio);
+
+
+
+		if (myid != 0){ // figlio
+			int repart = floor(n/numprocs-1); //thread 0 receives and distribute the data
+			for (int i = (myid-1)*repart;i<= (myid*repart); i++){
+				
+				result[i] = const_cast<char*>(strings[i].c_str());
+				printf("Pattern to analize: %s\n",result[i]);
+				KMPSearch(result[i],textToAnalize,bufferProprio);
+				printf("Buffer propio: %s\n",bufferProprio);
+
+			}
+
+
+			//ci mancherebbe repartire i non-multiplo
+			MPI_Isend (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,1,0,MPI_COMM_WORLD,&request);
+
+
+
 		}
 
-		if (myid != 0){ //figlio
-			MPI_Send (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,1,0,MPI_COMM_WORLD);
-		} else{ //father: aggiunge tutto
+
+		else if (myid == 0){ //father: aggiunge tutto
 			for (int islave = 1; islave < numprocs; islave++){
-				MPI_Recv (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,islave,2,MPI_COMM_WORLD,&status);
+
+				MPI_Irecv (&bufferProprio,strlen(bufferProprio)+1, MPI_CHAR,islave,2,MPI_COMM_WORLD,&request);
 				strcat(sharedBuffer,bufferProprio); //aggiornare il risultato al sharedBuffer
 
 			}
 
 
 		}
+		
+		
+		
+		
+	
 		
 
 			
@@ -299,6 +341,8 @@ int main(int argc, char* argv[])
 
 		//flush r
 		sprintf(r,"\n");
+		//flush r
+		sprintf(bufferProprio,"\n");
 
 		
 	
@@ -320,6 +364,6 @@ int main(int argc, char* argv[])
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
 	cout << "Time taken by function in server: " << duration.count()/1000000.0 << " second" << endl;
-
+	MPI_Finalize();
 	return 0;
 }
