@@ -33,7 +33,7 @@ int main(int argc, char const* argv[])
 	
     vector<string> traffico;
 
-	std::ifstream file("tests/T4.txt");
+	std::ifstream file("tests/T16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
@@ -59,7 +59,7 @@ int main(int argc, char const* argv[])
 
 		char buffer[1024];
 
-		printf("AQUI");
+		
 
 
 		if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -98,10 +98,7 @@ int main(int argc, char const* argv[])
 		//aspetta il result
 
 		if ((readLine(sock, buffer, 1024)==-1)){printf("Error en el servidor");break;}
-        printf("TEXT TO ANALIZE:%s\n", buffer);
 
-
-		
 		printf("RESULT: %s\n", buffer);
 
 		//we flush the buffer and the result
