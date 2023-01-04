@@ -223,14 +223,12 @@ int main(int argc, char const* argv[])
         char** result = new char*[size];
 		
 		#pragma omp parallel for 
+
 		
-		for (int index = 0; index < convertdata; index++) {
-			
-			
-			
+		
+		for (int index = 0; index < convertdata; index++) {			
 			result[index] = const_cast<char*>(strings[index].c_str());	
 			KMPSearch(result[index],textToAnalize,r);
-		
 		}
 
 		printf("FOUND PATTERNS:\n%s\n",r);

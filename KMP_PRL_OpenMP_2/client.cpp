@@ -44,9 +44,6 @@ int main(int argc, char const* argv[])
 	}
 
 
-	//traffico di pachetti (T)
-
-	traffico.push_back("FINISH");
 	
 
  
@@ -95,7 +92,7 @@ int main(int argc, char const* argv[])
 
 
 		//aspetta il result
-
+		
 		if ((readLine(sock, buffer, 256)==-1)){printf("Error en el servidor");break;}
         printf("RESULT:%s\n", buffer);
 

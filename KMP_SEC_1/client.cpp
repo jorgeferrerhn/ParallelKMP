@@ -30,13 +30,13 @@ int main(int argc, char const* argv[])
 
 	vector<string> traffico;
 
-	std::ifstream file("tests/T800.txt");
+	std::ifstream file("tests/T16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
 			// using printf() in all tests for consistency
 			traffico.push_back(line.c_str());
-			printf("%s\n", line.c_str());
+			//printf("%s\n", line.c_str());
 		}
     file.close();
 	}
@@ -78,22 +78,22 @@ int main(int argc, char const* argv[])
 	}
 
 		result[index] = const_cast<char*>(traffico[index].c_str());
-		printf("TEXT SENT TO ANALIZE: %s\n",result[index]);
+		//printf("TEXT SENT TO ANALIZE: %s\n",result[index]);
 		
 		
 		if ((sendMessage(sock, result[index], strlen(result[index])+1) == -1)){printf("Error en envío\n");break;}  
 		
-		printf("Text sent\n");
+		//printf("Text sent\n");
 
 
 		//aspetta il result
 
 		if ((readLine(sock, buffer, 256)==-1)){printf("Error en el servidor");break;}
-        printf("TEXT RESULT:%s\n", buffer);
+        //printf("TEXT RESULT:%s\n", buffer);
 
 
 		
-		printf("RESULT: %s\n", buffer);
+		//printf("RESULT: %s\n", buffer);
 
 		//we flush the buffer and the result
 		sprintf(buffer,"\n");
@@ -110,7 +110,7 @@ int main(int argc, char const* argv[])
 	
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	cout << "Time taken by function in client: " << duration.count()/1000000.0 << " second" << endl;
+	//cout << "Time taken by function in client: " << duration.count()/1000000.0 << " second" << endl;
 	// closing the connected socket
 	return 0;
 }

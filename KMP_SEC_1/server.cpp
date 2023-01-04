@@ -140,13 +140,13 @@ int main(int argc, char const* argv[])
 
   	vector<string> strings;
 
-	std::ifstream file("tests/S800.txt");
+	std::ifstream file("tests/4.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
 			// using printf() in all tests for consistency
 			strings.push_back(line.c_str());
-			printf("%s\n", line.c_str());
+			//printf("%s\n", line.c_str());
 		}
     file.close();
 }
@@ -204,7 +204,7 @@ int main(int argc, char const* argv[])
 
         //obtenemos usuario
 		if ((readLine(new_socket, buffer, 256)==-1)){printf("Error en el servidor");break;}
-        printf("TEXT TO ANALIZE:%s\n", buffer);
+        //printf("TEXT TO ANALIZE:%s\n", buffer);
 
 
 		char textToAnalize[1024];
@@ -212,7 +212,7 @@ int main(int argc, char const* argv[])
 
 
 		if (strcmp(textToAnalize,"FINISH") == 0){
-			printf("FINISH\n");
+			//printf("FINISH\n");
 			break;
 		}
 
@@ -228,7 +228,7 @@ int main(int argc, char const* argv[])
 			
 		}
 
-		printf("FOUND PATTERNS:\n%s\n",r);
+		//printf("FOUND PATTERNS:\n%s\n",r);
 
 		if (strcmp(r,"") == 0){
 			sprintf(r, "No matches, pattern not found");
@@ -237,7 +237,7 @@ int main(int argc, char const* argv[])
 		sprintf(buffer,r);
 		if ((sendMessage(new_socket, buffer, strlen(buffer)+1) == -1)){printf("Error en envío\n");break;}  
 		// Use the result.
-        printf("Index message sent\n");
+        //printf("Index message sent\n");
 
 		//flush r
 		sprintf(r,"\n");
@@ -261,7 +261,7 @@ int main(int argc, char const* argv[])
 	
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	cout << "Time taken by function in server: " << duration.count()/1000000.0 << " second" << endl;
+	//cout << "Time taken by function in server: " << duration.count()/1000000.0 << " second" << endl;
   	first.join();                // pauses until first finishes
 
 	return 0;
