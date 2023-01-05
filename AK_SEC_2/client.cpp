@@ -10,9 +10,8 @@
 #include <iostream>
 #include "lines.h"
 #include <chrono>
+
 #include <fstream>
-
-
 
 
 #define PORT 8080
@@ -29,11 +28,9 @@ int main(int argc, char const* argv[])
 	int sock = 0, client_fd;
 	struct sockaddr_in serv_addr;
 
-	//populate list
-	
-    vector<string> traffico;
+	vector<string> traffico;
 
-	std::ifstream file("tests/S1024.txt");
+	std::ifstream file("tests/T4.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
@@ -44,8 +41,7 @@ int main(int argc, char const* argv[])
     file.close();
 	}
 
-
- 
+ 	traffico.push_back("FINISH");
    
 	
         
@@ -93,7 +89,7 @@ int main(int argc, char const* argv[])
 		//aspetta il result
 
 		if ((readLine(sock, buffer, 256)==-1)){printf("Error en el servidor");break;}
-        printf("TEXT TO ANALIZE:%s\n", buffer);
+        printf("TEXT RESULT:%s\n", buffer);
 
 
 		
@@ -114,7 +110,7 @@ int main(int argc, char const* argv[])
 	
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
-	cout << "Time taken by client: " << duration.count() << " microseconds" << endl;
+	cout << "Time taken by function in client: " << duration.count()/1000000.0 << " second" << endl;
 	// closing the connected socket
 	return 0;
 }

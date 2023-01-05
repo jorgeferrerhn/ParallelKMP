@@ -1,24 +1,30 @@
 // Server side C/C++ program to demonstrate Socket
 // programming
+
+
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <vector>
+#include <vector> 
 #include <string>
 #include <iostream>
 #include <chrono>
 #include <fstream>
 #include "lines.h"
-#include <thread>
 #include <pthread.h>
+#include <mpi.h>
+#include <math.h>
+#include <thread>
+
+
+
 
 #define PORT 8080
 
-pthread_mutex_t m;
-pthread_cond_t c;
+
 
 void computeLPSArray(char* pat, int M, int* lps);
 using namespace std;
@@ -28,7 +34,6 @@ using namespace std;
 void KMPSearch(char* pat, char* txt,char* result)
 {
 
-	
 
 	int M = strlen(pat);
 	int N = strlen(txt);
@@ -126,8 +131,30 @@ void foo()
 }
 
 
-int main(int argc, char const* argv[])
+int main(int argc, char* argv[]) 
 {
+
+
+
+	int myid,numprocs;
+
+
+	MPI_Init(&argc,&argv);
+
+	MPI_Comm_size(MPI_COMM_WORLD ,&numprocs); 
+
+	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+
+	
+    //comm group contains all proccesses
+    MPI_Group comm_group;
+
+    MPI_Comm_group(MPI_COMM_WORLD,&comm_group);
+
+    //printf("Number of proccesses: %d\n",numprocs);
+    
+
+
 
 	//measure server time execution
 	
@@ -140,23 +167,18 @@ int main(int argc, char const* argv[])
 
   	vector<string> strings;
 
-	std::ifstream file("tests/S800.txt");
+	std::ifstream file("tests/S16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
 			// using printf() in all tests for consistency
 			strings.push_back(line.c_str());
-			printf("%s\n", line.c_str());
 		}
     file.close();
 }
 
 
-   
-
-
-
-
+	
 	// Creating socket file descriptor
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("socket failed");
@@ -186,83 +208,119 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	//std::thread first (foo);     // spawn new thread that calls foo()
+	int n ;
 
-
-    while(1){
-
-
-		char buffer[1024]; 
-		
-
-
-        if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
-            printf("accept: %d",new_socket);
-            exit(EXIT_FAILURE);
-	    }
-        
-
-        //obtenemos usuario
-		if ((readLine(new_socket, buffer, 256)==-1)){printf("Error en el servidor");break;}
-        printf("TEXT TO ANALIZE:%s\n", buffer);
-
-
-		char textToAnalize[1024];
-		sprintf(textToAnalize,buffer); //we pass the word to a new variable
-
-
-		if (strcmp(textToAnalize,"FINISH") == 0){
-			printf("FINISH\n");
-			break;
-		}
-
-
-		char r[1024];
-
-		
-        char** result = new char*[strings.size()];
-		
-		for (int index = 0; (unsigned)index < strings.size(); index++) {
-			result[index] = const_cast<char*>(strings[index].c_str());
-			KMPSearch(result[index],textToAnalize,r);
-			
-		}
-
-		printf("FOUND PATTERNS:\n%s\n",r);
-
-		if (strcmp(r,"") == 0){
-			sprintf(r, "No matches, pattern not found");
-		}
-
-		sprintf(buffer,r);
-		if ((sendMessage(new_socket, buffer, strlen(buffer)+1) == -1)){printf("Error en envío\n");break;}  
-		// Use the result.
-        printf("Index message sent\n");
-
-		//flush r
-		sprintf(r,"\n");
-
-		
+	
+	
 	
 
 
-		
+	while(1){
+
+
+	//printf("MY ID: %d\n",myid);
+	char sharedBuffer[1024]; //shared buffer between processes
+	char buffer[1024]; 
+
+	
+	if ((new_socket = accept(server_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen))< 0) {
+		printf("accept: %d",new_socket);
+		exit(EXIT_FAILURE);
+	}
+
+	
+
+
+	
+	//obtenemos texto
+	if ((readLine(new_socket, buffer, 1024)==-1)){printf("Error en el servidor");break;}
+	printf("TEXT TO ANALIZE:%s\n", buffer);
+
+	char textToAnalize[1024];
+	sprintf(textToAnalize,buffer); //we pass the word to a new variable
 
 		
+		
+	
 
-    }
+	if (strcmp(textToAnalize,"FINISH") == 0){
+		//printf("FINISH\n");
+		break;
+	}
+	
+
+	char** result = new char*[strings.size()];
+	auto size = strings.size();
+	int stringSize = static_cast<int>(size);
+
+	
+
+	n = stringSize; //number of iterations for each proccess
+
+	
+	char bufferProprio[1024];
+
+	//printf("Number of iterations: %d\n",n);
+
+	
+		
+		
+	for (int i=0; i< n; i++){
+		result[i] = const_cast<char*>(strings[i].c_str());
+		//printf("Pattern: %s\n",result[i]);
+		KMPSearch(result[i],textToAnalize,bufferProprio);
+		//printf("Result of search: %s\n",bufferProprio);
+		strcat(sharedBuffer,bufferProprio);
+		memset(bufferProprio,0,1024);
+
+	}
+
+	printf("FOUND PATTERNS:\n%s\n",sharedBuffer);
+
+	if (strcmp(sharedBuffer,"") == 0){
+		sprintf(sharedBuffer, "No matches, pattern not found");
+	} 
+	sprintf(buffer,sharedBuffer);
+	
+
+	if ((sendMessage(new_socket, buffer, strlen(buffer)+1) == -1)){printf("Error en envío\n");break;}  
+	// Use the result.
+
+	
+	//flush buffer
+	memset(sharedBuffer,0,1024);
+	memset(buffer,0,1024);
+	//printf("Index message sent\n");
+
+	}
+
+
+
 	close(new_socket);
 
+	
 	// closing the listening socket
 	shutdown(server_fd, SHUT_RDWR);
 
+
+
+ 	
 	//end of time measurement
 	auto stop = std::chrono::high_resolution_clock::now();
 	
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
 	cout << "Time taken by function in server: " << duration.count()/1000000.0 << " second" << endl;
-  	//first.join();                // pauses until first finishes
+	
+	MPI_Group_free(&comm_group);
 
+	MPI_Finalize();
 	return 0;
-}
+	
+
+
+    }
+	
+
+	
+
