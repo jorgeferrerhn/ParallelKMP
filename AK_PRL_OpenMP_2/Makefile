@@ -1,8 +1,8 @@
 BIN_FILES  = server client 
 
-CC = g++ -Wall
+CC = g++ -fopenmp -Wall
 
-LDLIBS = -lpthread -lrt
+
 
 
 LDFLAGS = -L$(INSTALL_PATH)/lib/
@@ -14,10 +14,10 @@ all: $(BIN_FILES)
 
 
 server: server.o lines.o
-	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $^  -o $@
 
 client: client.o lines.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $^  -o $@
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(CFLAGS) -c $< 
