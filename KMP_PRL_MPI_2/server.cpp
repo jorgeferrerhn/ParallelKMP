@@ -58,7 +58,7 @@ void KMPSearch(char* pat, char* txt,char* result)
 			char p[100];
 			int k = i-j;
 			sprintf(p,"%s Found pattern at index %d\n", pat,k);			
-			if (sizeof(result) == 0){
+			if (strcmp(result,"\n") == 0){
 				sprintf(result,p);
 			}
 			else{
@@ -137,7 +137,6 @@ int main(int argc, char* argv[])
 
 	int myid,numprocs;
 
-	//MPI_Finalize();
 
 	MPI_Init(&argc,&argv);
 
@@ -146,7 +145,7 @@ int main(int argc, char* argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
 	char buf[1024]; //window buffer
-    //MPI_Win window;
+    MPI_Win window;
 
     //comm group contains all proccesses
     MPI_Group comm_group;
@@ -169,7 +168,7 @@ int main(int argc, char* argv[])
 
   	vector<string> strings;
 
-	std::ifstream file("tests/S4.txt");
+	std::ifstream file("tests/S16.txt");
 	if (file.is_open()) {
 		std::string line;
 		while (std::getline(file, line)) {
@@ -212,12 +211,12 @@ int main(int argc, char* argv[])
 
 	int n ;
 
-	//MPI_Win_create(buf,1024*numprocs,1024,MPI_INFO_NULL,MPI_COMM_WORLD,&window);
+	MPI_Win_create(buf,1024*numprocs,1024,MPI_INFO_NULL,MPI_COMM_WORLD,&window);
 	
 	while(1){
 
 
-	printf("MY ID: %d\n",myid);
+	//printf("MY ID: %d\n",myid);
 	char sharedBuffer[1024]; //shared buffer between processes
 	char buffer[1024]; 
 
@@ -228,17 +227,22 @@ int main(int argc, char* argv[])
 	}
 
 	
+
+
+	
 	//obtenemos texto
 	if ((readLine(new_socket, buffer, 1024)==-1)){printf("Error en el servidor");break;}
-	printf("TEXT TO ANALIZE:%s\n", buffer);
+	//printf("TEXT TO ANALIZE:%s\n", buffer);
 
 	char textToAnalize[1024];
 	sprintf(textToAnalize,buffer); //we pass the word to a new variable
 
 		
+		
+	
 
 	if (strcmp(textToAnalize,"FINISH") == 0){
-		printf("FINISH\n");
+		//printf("FINISH\n");
 		break;
 	}
 	
@@ -269,7 +273,7 @@ int main(int argc, char* argv[])
 
 	}
 
-	printf("FOUND PATTERNS:\n%s\n",sharedBuffer);
+	//printf("FOUND PATTERNS:\n%s\n",sharedBuffer);
 
 	if (strcmp(sharedBuffer,"") == 0){
 		sprintf(sharedBuffer, "No matches, pattern not found");
@@ -301,8 +305,9 @@ int main(int argc, char* argv[])
 
 	cout << "Time taken by function in server: " << duration.count()/1000000.0 << " second" << endl;
 	
-	
-	
+	MPI_Win_free(&window);
+	MPI_Group_free(&comm_group);
+
 	MPI_Finalize();
 	return 0;
 	
